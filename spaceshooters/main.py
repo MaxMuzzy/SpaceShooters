@@ -2,7 +2,6 @@ import pygame, sys
 from player import Player
 import obstacle
 from enemy import Enemy, UFO
-from bullet import Bullet
 from random import choice, randint
 from cfg import *
 from spaceshooters.enemyhandler import EnemyHandler
@@ -33,9 +32,6 @@ class Game:
         self.enemies = pygame.sprite.Group()
         self.enemy_bullets = pygame.sprite.Group()
         self.EnemyHandler = EnemyHandler(self.enemies, self.enemy_bullets)
-        #self.enemy_setup()
-        #self.enemy_direction = ENEMY_1_MOVE_SPEED
-
 
         #ufo
         self.ufo = pygame.sprite.GroupSingle()
@@ -53,12 +49,6 @@ class Game:
     def create_multiple_obstacles(self, *offset, x_start, y_start):
         for offset_x in offset:
             self.create_obstacle(x_start, y_start, offset_x)
-
-    def enemy_shoot(self):
-        if self.enemies.sprites():
-            random_enemy = choice(self.enemies.sprites())
-            bullet_sprite = Bullet(random_enemy.rect.center, ENEMY_BULLET_SPEED, False, random_enemy.enemy_index)
-            self.enemy_bullets.add(bullet_sprite)
 
     def ufo_timer(self):
         self.ufo_spawn_time -= 1
@@ -114,6 +104,7 @@ class Game:
         score_rect = score_surf.get_rect(topleft=(10, 10))
         screen.blit(score_surf, score_rect)
 
+    #idk wtf this is
     def set_enemy_speed(self, enemy):
         if type(enemy) != Enemy:
             raise ValueError
@@ -128,10 +119,7 @@ class Game:
     def run(self):
         if self.enemies.sprites():
             self.player.update()
-            #self.enemies.update(self.enemy_direction)
             self.ufo.update()
-            #self.enemy_bullets.update()
-            #self.enemy_position_checker()
             self.EnemyHandler.update()
 
             self.ufo_timer()
@@ -168,7 +156,7 @@ while True:
             pygame.quit()
             sys.exit()
         if event.type == ENEMYLASER:
-            game.enemy_shoot()
+            game.EnemyHandler.enemy_shoot()
     screen.fill((30,30,30))
     game.run()
     pygame.display.flip()

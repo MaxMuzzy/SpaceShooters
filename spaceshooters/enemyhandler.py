@@ -1,12 +1,16 @@
 import pygame
+
+from random import choice
 from cfg import *
 from enemy import Enemy
+from bullet import Bullet
+
 
 class EnemyHandler():
     def __init__(self, current_level_enemies, enemy_bullets):
         if type(current_level_enemies) == pygame.sprite.Group and type(enemy_bullets) == pygame.sprite.Group:
             self.enemies = current_level_enemies
-            self.enemyBullets = enemy_bullets
+            self.enemy_bullets = enemy_bullets
             self.enemy_direction = 1
             self.enemy_setup()
         else:
@@ -14,7 +18,7 @@ class EnemyHandler():
 
     def update(self):
         self.enemies.update(self.enemy_direction)
-        self.enemyBullets.update()
+        self.enemy_bullets.update()
         self.enemy_position_checker()
 
     def enemy_setup(self, x_distance = ENEMY_X_DISTANCE, y_distance= ENEMY_Y_DISTANCE, x_offset = ENEMY_X_OFFSET, y_offset = ENEMY_Y_OFFSET):
@@ -44,3 +48,9 @@ class EnemyHandler():
         if self.enemies.sprites():
             for enemy in self.enemies.sprites():
                 enemy.rect.y += distance
+
+    def enemy_shoot(self):
+        if self.enemies.sprites():
+            random_enemy = choice(self.enemies.sprites())
+            bullet_sprite = Bullet(random_enemy.rect.center, ENEMY_BULLET_SPEED, False, random_enemy.enemy_index)
+            self.enemy_bullets.add(bullet_sprite)
