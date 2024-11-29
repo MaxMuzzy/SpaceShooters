@@ -5,6 +5,7 @@ from enemy import Enemy, UFO
 from bullet import Bullet
 from random import choice, randint
 from cfg import *
+from spaceshooters.enemyhandler import EnemyHandler
 
 
 class Game:
@@ -30,9 +31,11 @@ class Game:
 
         #enemies
         self.enemies = pygame.sprite.Group()
-        self.enemy_setup()
-        self.enemy_direction = ENEMY_1_MOVE_SPEED
         self.enemy_bullets = pygame.sprite.Group()
+        self.EnemyHandler = EnemyHandler(self.enemies, self.enemy_bullets)
+        #self.enemy_setup()
+        #self.enemy_direction = ENEMY_1_MOVE_SPEED
+
 
         #ufo
         self.ufo = pygame.sprite.GroupSingle()
@@ -50,34 +53,6 @@ class Game:
     def create_multiple_obstacles(self, *offset, x_start, y_start):
         for offset_x in offset:
             self.create_obstacle(x_start, y_start, offset_x)
-
-    def enemy_setup(self, x_distance = ENEMY_X_DISTANCE, y_distance= ENEMY_Y_DISTANCE, x_offset = ENEMY_X_OFFSET, y_offset = ENEMY_Y_OFFSET):
-        for row_index, row in enumerate(LEVEL_1):
-            for col_index, col in enumerate(row):
-                x = x_offset + col_index * x_distance
-                y = y_offset + row_index * y_distance
-                if col == '1':
-                    enemy_sprite = Enemy('1', x, y)
-                if col == '2':
-                    enemy_sprite = Enemy('2', x, y)
-                if col == '3':
-                    enemy_sprite = Enemy('3', x, y)
-
-                self.enemies.add(enemy_sprite)
-
-    def enemy_position_checker(self):
-        for enemy in self.enemies.sprites():
-            if enemy.rect.right >= screen_width:
-                self.enemy_direction = -self.set_enemy_speed(enemy)
-                self.enemy_move_down(ENEMY_MOVE_DOWN_SPEED)
-            elif enemy.rect.left <= 0:
-                self.enemy_direction = self.set_enemy_speed(enemy)
-                self.enemy_move_down(ENEMY_MOVE_DOWN_SPEED)
-
-    def enemy_move_down(self, distance):
-        if self.enemies.sprites():
-            for enemy in self.enemies.sprites():
-                enemy.rect.y += distance
 
     def enemy_shoot(self):
         if self.enemies.sprites():
@@ -139,12 +114,6 @@ class Game:
         score_rect = score_surf.get_rect(topleft=(10, 10))
         screen.blit(score_surf, score_rect)
 
-    def victory_message(self):
-        if not self.enemies.sprites():
-            victory_surf = self.font.render('YOU WON!', False, 'white')
-            victory_rect = victory_surf.get_rect(center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
-            screen.blit(victory_surf, victory_rect)
-
     def set_enemy_speed(self, enemy):
         if type(enemy) != Enemy:
             raise ValueError
@@ -159,10 +128,11 @@ class Game:
     def run(self):
         if self.enemies.sprites():
             self.player.update()
-            self.enemies.update(self.enemy_direction)
+            #self.enemies.update(self.enemy_direction)
             self.ufo.update()
-            self.enemy_bullets.update()
-            self.enemy_position_checker()
+            #self.enemy_bullets.update()
+            #self.enemy_position_checker()
+            self.EnemyHandler.update()
 
             self.ufo_timer()
             self.collision_checks()

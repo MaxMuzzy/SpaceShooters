@@ -22,10 +22,6 @@ class Player(pygame.sprite.Sprite):
             self.rect.x += self.speed
         elif keys[pygame.K_LEFT]:
             self.rect.x -= self.speed
-        elif keys[pygame.K_UP]:
-            self.rect.y -= self.speed
-        elif keys[pygame.K_DOWN]:
-            self.rect.y += self.speed
 
         if keys[pygame.K_SPACE] and self.ready:
             self.shoot()
