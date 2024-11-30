@@ -4,7 +4,7 @@ import obstacle
 from enemy import Enemy, UFO
 from random import choice, randint
 from cfg import *
-from spaceshooters.enemyhandler import EnemyHandler
+from enemyhandler import EnemyHandler
 
 
 class Game:
@@ -16,7 +16,7 @@ class Game:
         #health and score
         self.lives = 3
         self.live_surf = pygame.image.load('PNG/new/newPlayer.png').convert_alpha()
-        self.live_x_start_pos = screen_width - (self.live_surf.get_size()[0] * 2 + 20)
+        self.live_x_start_pos = screen_width - (self.live_surf.get_size()[0] * 3 + 20)
         self.score = 0
         self.font = pygame.font.Font('font/PublicPixel.ttf', FONT_SIZE)
 
@@ -29,13 +29,17 @@ class Game:
         self.create_multiple_obstacles(*self.obstacle_x_positions, x_start = screen_width / 12.625, y_start = OBSTACLE_Y_START)
 
         #enemies
-        self.enemies = pygame.sprite.Group()
-        self.enemy_bullets = pygame.sprite.Group()
-        self.EnemyHandler = EnemyHandler(self.enemies, self.enemy_bullets)
+        self.EnemyHandler = EnemyHandler(pygame.sprite.Group(), pygame.sprite.Group())
+        self.EnemyHandler.enemy_setup(LEVELS[0])
 
         #ufo
         self.ufo = pygame.sprite.GroupSingle()
         self.ufo_spawn_time = randint(UFO_MIN_TIME, UFO_MAX_TIME)
+
+        #levels
+        self.time_til_next_level = TIME_TIL_NEXT_LEVEL
+        self.starting_level = 0
+        self.current_level = self.starting_level
 
     def create_obstacle(self, x_start, y_start, offset_x):
         for row_index, row in enumerate(self.shape):
@@ -63,7 +67,7 @@ class Game:
                 if pygame.sprite.spritecollide(bullet, self.blocks, True):
                     bullet.kill()
                 #enemy collision
-                enemies_hit = pygame.sprite.spritecollide(bullet, self.enemies, False)
+                enemies_hit = pygame.sprite.spritecollide(bullet, self.EnemyHandler.enemies, False)
                 if enemies_hit:
                     for enemy in enemies_hit:
                         enemy.health -= 1
@@ -75,27 +79,31 @@ class Game:
                     self.score += UFO_VALUE
                     bullet.kill()
 
-        if self.enemy_bullets:
-            for bullet in self.enemy_bullets:
+        if self.EnemyHandler.enemy_bullets:
+            for bullet in self.EnemyHandler.enemy_bullets:
                 # obstacle collision
                 if pygame.sprite.spritecollide(bullet, self.blocks, True):
                     bullet.kill()
                 if pygame.sprite.spritecollide(bullet, self.player, False):
                     bullet.kill()
-                    self.lives -= 1
+                    # Определяем урон в зависимости от источника пули
+                    if bullet.owner_index == '3':
+                        self.lives -= 2
+                    else:
+                        self.lives -= 1
                     if self.lives <= 0:
                         pygame.quit()
                         sys.exit()
 
-        if self.enemies:
-            for enemy in self.enemies:
+        if self.EnemyHandler.enemies:
+            for enemy in self.EnemyHandler.enemies:
                 pygame.sprite.spritecollide(enemy, self.blocks, True)
                 if pygame.sprite.spritecollide(enemy, self.player, False):
                     pygame.quit()
                     sys.exit()
 
     def display_lives(self):
-        for live in range(self.lives - 1):
+        for live in range(self.lives ):
             x = self.live_x_start_pos + (live * (self.live_surf.get_size()[0] + 10))
             screen.blit(self.live_surf, (x, 8))
 
@@ -104,36 +112,53 @@ class Game:
         score_rect = score_surf.get_rect(topleft=(10, 10))
         screen.blit(score_surf, score_rect)
 
-    #idk wtf this is
-    def set_enemy_speed(self, enemy):
-        if type(enemy) != Enemy:
-            raise ValueError
-        match enemy.enemy_index:
-            case '1':
-                return ENEMY_1_MOVE_SPEED
-            case '2':
-                return ENEMY_2_MOVE_SPEED
-            case '3':
-                return ENEMY_3_MOVE_SPEED
+    def display_endscreen(self, message, offset_x, offset_y):
+        victory_surf = self.font.render(f'{message}', False, 'white')
+        victory_rect = victory_surf.get_rect(center=(SCREEN_WIDTH / 2 + offset_x, SCREEN_HEIGHT / 2 + offset_y))
+        screen.blit(victory_surf, victory_rect)
 
     def run(self):
-        if self.enemies.sprites():
-            self.player.update()
-            self.ufo.update()
-            self.EnemyHandler.update()
-
-            self.ufo_timer()
-            self.collision_checks()
+        if self.EnemyHandler.enemies.sprites():
+            # self.player.update()
+            # self.ufo.update()
+            # self.EnemyHandler.update()
+            # self.ufo_timer()
+            # self.collision_checks()
+            self.level_clear_timer = None
         else:
-            victory_surf = self.font.render('YOU WON!', False, 'white')
-            victory_rect = victory_surf.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
-            screen.blit(victory_surf, victory_rect)
+            # Если врагов нет, запускаем отсчёт перед переходом на следующий уровень
+            if self.level_clear_timer is None:
+                # Устанавливаем начальное время отсчёта
+                self.level_clear_timer = self.time_til_next_level
+
+            # Уменьшаем таймер каждую секунду
+            self.level_clear_timer -= 1 / 60  # Поскольку игра работает на 60 FPS
+
+            # Отображаем обратный отсчёт
+            time_remaining = max(0, int(self.level_clear_timer))
+            self.display_endscreen(f"NEXT STAGE IN: {time_remaining + 1}", 0, 0)
+
+            # Проверяем, нужно ли перейти на следующий уровень
+            if self.level_clear_timer <= 0:
+                self.level_clear_timer = None  # Сбрасываем таймер
+                if self.current_level + 1 < len(LEVELS):
+                    self.current_level += 1
+                    self.EnemyHandler.enemy_setup(LEVELS[self.current_level])
+                    self.time_til_next_level = TIME_TIL_NEXT_LEVEL
+                else:
+                    self.display_endscreen("YOU WIN!", 0, 0)
+
+        self.player.update()
+        self.ufo.update()
+        self.EnemyHandler.update()
+        self.ufo_timer()
+        self.collision_checks()
 
         self.player.sprite.bullets.draw(screen)
         self.player.draw(screen)
         self.blocks.draw(screen)
-        self.enemies.draw(screen)
-        self.enemy_bullets.draw(screen)
+        self.EnemyHandler.enemies.draw(screen)
+        self.EnemyHandler.enemy_bullets.draw(screen)
         self.ufo.draw(screen)
         self.display_lives()
         self.display_score()

@@ -12,7 +12,6 @@ class EnemyHandler():
             self.enemies = current_level_enemies
             self.enemy_bullets = enemy_bullets
             self.enemy_direction = 1
-            self.enemy_setup()
         else:
             raise ValueError
 
@@ -21,17 +20,19 @@ class EnemyHandler():
         self.enemy_bullets.update()
         self.enemy_position_checker()
 
-    def enemy_setup(self, x_distance = ENEMY_X_DISTANCE, y_distance= ENEMY_Y_DISTANCE, x_offset = ENEMY_X_OFFSET, y_offset = ENEMY_Y_OFFSET):
-        for row_index, row in enumerate(LEVEL_1):
+    def enemy_setup(self, currentLevel):
+        for row_index, row in enumerate(currentLevel):
             for col_index, col in enumerate(row):
-                x = x_offset + col_index * x_distance
-                y = y_offset + row_index * y_distance
+                x = ENEMY_X_OFFSET + col_index * ENEMY_X_DISTANCE
+                y = ENEMY_Y_OFFSET + row_index * ENEMY_Y_DISTANCE
                 if col == '1':
                     enemy_sprite = Enemy('1', x, y)
-                if col == '2':
+                elif col == '2':
                     enemy_sprite = Enemy('2', x, y)
-                if col == '3':
+                elif col == '3':
                     enemy_sprite = Enemy('3', x, y)
+                else:
+                    continue
 
                 self.enemies.add(enemy_sprite)
 
