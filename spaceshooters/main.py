@@ -40,6 +40,7 @@ class Game:
         self.time_til_next_level = TIME_TIL_NEXT_LEVEL
         self.starting_level = 0
         self.current_level = self.starting_level
+        self.game_over = False
 
     def create_obstacle(self, x_start, y_start, offset_x):
         for row_index, row in enumerate(self.shape):
@@ -119,40 +120,32 @@ class Game:
 
     def run(self):
         if self.EnemyHandler.enemies.sprites():
-            # self.player.update()
-            # self.ufo.update()
-            # self.EnemyHandler.update()
-            # self.ufo_timer()
-            # self.collision_checks()
             self.level_clear_timer = None
-        else:
-            # Если врагов нет, запускаем отсчёт перед переходом на следующий уровень
-            if self.level_clear_timer is None:
-                # Устанавливаем начальное время отсчёта
-                self.level_clear_timer = self.time_til_next_level
+        elif not self.game_over:
+            if self.current_level + 1 < len(LEVELS):
+                if self.level_clear_timer is None:
+                    self.level_clear_timer = self.time_til_next_level
 
-            # Уменьшаем таймер каждую секунду
-            self.level_clear_timer -= 1 / 60  # Поскольку игра работает на 60 FPS
+                self.level_clear_timer -= 1 / 60
+                time_remaining = max(0, int(self.level_clear_timer))
+                self.display_endscreen(f"NEXT STAGE IN: {time_remaining + 1}", 0, 0)
 
-            # Отображаем обратный отсчёт
-            time_remaining = max(0, int(self.level_clear_timer))
-            self.display_endscreen(f"NEXT STAGE IN: {time_remaining + 1}", 0, 0)
-
-            # Проверяем, нужно ли перейти на следующий уровень
-            if self.level_clear_timer <= 0:
-                self.level_clear_timer = None  # Сбрасываем таймер
-                if self.current_level + 1 < len(LEVELS):
+                if self.level_clear_timer <= 0:
+                    self.level_clear_timer = None
                     self.current_level += 1
                     self.EnemyHandler.enemy_setup(LEVELS[self.current_level])
                     self.time_til_next_level = TIME_TIL_NEXT_LEVEL
-                else:
-                    self.display_endscreen("YOU WIN!", 0, 0)
+            else:
+                    self.game_over = True
+        if self.game_over:
+            self.display_endscreen("YOU WIN!", 0, 0)
+        else:
+            self.player.update()
+            self.ufo.update()
+            self.EnemyHandler.update()
+            self.ufo_timer()
+            self.collision_checks()
 
-        self.player.update()
-        self.ufo.update()
-        self.EnemyHandler.update()
-        self.ufo_timer()
-        self.collision_checks()
 
         self.player.sprite.bullets.draw(screen)
         self.player.draw(screen)
