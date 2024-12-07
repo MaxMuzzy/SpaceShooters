@@ -69,9 +69,9 @@ class EnemyHandler():
                 case '1':
                     c1 += 1
                 case '2':
-                    c2 += 2
+                    c2 += 1
                 case '3':
-                    c3 += 3
+                    c3 += 1
         res = max(c1, c2, c3)
         if res == c1:
             return ENEMY_1_MOVE_SPEED
