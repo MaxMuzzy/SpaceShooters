@@ -10,8 +10,8 @@ class Player(pygame.sprite.Sprite):
         self.speed = speed
         self.max_x_constraint = constraint
         self.ready = True
-        self.shoot_time = 0
         self.shoot_cooldown = PLAYER_SHOOT_COOLDOWN
+        self.shoot_time = self.shoot_cooldown
 
         self.bullets = pygame.sprite.Group()
 
@@ -25,14 +25,20 @@ class Player(pygame.sprite.Sprite):
 
         if keys[pygame.K_SPACE] and self.ready:
             self.shoot()
+            #self.shoot_time = pygame.time.get_ticks()
             self.ready = False
-            self.shoot_time = pygame.time.get_ticks()
 
     def recharge(self):
-        if not self.ready:
-            current_time = pygame.time.get_ticks()
-            if current_time - self.shoot_time >= self.shoot_cooldown:
-                self.ready = True
+        # if not self.ready:
+        #     current_time = pygame.time.get_ticks()
+        #     if current_time - self.shoot_time >= self.shoot_cooldown:
+        #         self.ready = True
+        if self.shoot_time is None:
+            self.shoot_time = self.shoot_cooldown
+        self.shoot_time -= 1 / 60
+        if self.shoot_time <= 0:
+            self.shoot_time = None
+            self.ready = True
 
     def constraint(self):
         if self.rect.left <= 0:

@@ -87,7 +87,6 @@ class Game:
                     bullet.kill()
                 if pygame.sprite.spritecollide(bullet, self.player, False):
                     bullet.kill()
-                    # Определяем урон в зависимости от источника пули
                     if bullet.owner_index == '3':
                         self.lives -= 2
                     else:
@@ -113,7 +112,7 @@ class Game:
         score_rect = score_surf.get_rect(topleft=(10, 10))
         screen.blit(score_surf, score_rect)
 
-    def display_endscreen(self, message, offset_x, offset_y):
+    def display_text(self, message, offset_x, offset_y):
         victory_surf = self.font.render(f'{message}', False, 'white')
         victory_rect = victory_surf.get_rect(center=(SCREEN_WIDTH / 2 + offset_x, SCREEN_HEIGHT / 2 + offset_y))
         screen.blit(victory_surf, victory_rect)
@@ -128,7 +127,7 @@ class Game:
 
                 self.level_clear_timer -= 1 / 60
                 time_remaining = max(0, int(self.level_clear_timer))
-                self.display_endscreen(f"NEXT STAGE IN: {time_remaining + 1}", 0, 0)
+                self.display_text(f"NEXT STAGE IN: {time_remaining + 1}", 0, 0)
 
                 if self.level_clear_timer <= 0:
                     self.level_clear_timer = None
@@ -138,7 +137,11 @@ class Game:
             else:
                     self.game_over = True
         if self.game_over:
-            self.display_endscreen("YOU WIN!", 0, 0)
+            self.display_text("YOU WIN!", 0, 0)
+            self.display_text("PRESS R TO RESTART", 0, 35)
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_r]:
+                self.__init__()
         else:
             self.player.update()
             self.ufo.update()
@@ -165,17 +168,12 @@ pygame.display.set_caption('Space Shooters')
 clock = pygame.time.Clock()
 game = Game()
 
-ENEMYLASER = pygame.USEREVENT + 1
-pygame.time.set_timer(ENEMYLASER, ENEMY_SHOOT_TIME)
-
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-        if event.type == ENEMYLASER:
-            game.EnemyHandler.enemy_shoot()
-    screen.fill((30,30,30))
+    screen.fill((30, 30, 30))
     game.run()
     pygame.display.flip()
     clock.tick(60)

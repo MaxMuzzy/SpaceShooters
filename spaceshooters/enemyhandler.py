@@ -11,7 +11,9 @@ class EnemyHandler():
         if type(current_level_enemies) == pygame.sprite.Group and type(enemy_bullets) == pygame.sprite.Group:
             self.enemies = current_level_enemies
             self.enemy_bullets = enemy_bullets
-            self.enemy_direction = 1
+            self.enemy_direction = ENEMY_1_MOVE_SPEED
+            self.enemy_shoot_interval = ENEMY_SHOOT_TIME
+            self.enemy_shoot_timer = self.enemy_shoot_interval
         else:
             raise ValueError
 
@@ -19,6 +21,13 @@ class EnemyHandler():
         self.enemies.update(self.enemy_direction)
         self.enemy_bullets.update()
         self.enemy_position_checker()
+
+        if self.enemy_shoot_timer is None:
+            self.enemy_shoot_timer = self.enemy_shoot_interval
+        self.enemy_shoot_timer -= 1 / 60
+        if self.enemy_shoot_timer <= 0:
+            self.enemy_shoot_timer = None
+            self.enemy_shoot()
 
     def enemy_setup(self, currentLevel):
         for row_index, row in enumerate(currentLevel):
@@ -35,20 +44,41 @@ class EnemyHandler():
                     continue
 
                 self.enemies.add(enemy_sprite)
+                self.enemy_direction = self.get_enemy_move_speed()
 
     def enemy_position_checker(self):
         for enemy in self.enemies.sprites():
             if enemy.rect.right >= SCREEN_WIDTH:
-                self.enemy_direction = -ENEMY_1_MOVE_SPEED
+                self.enemy_direction = -self.get_enemy_move_speed()
                 self.enemy_move_down(ENEMY_MOVE_DOWN_SPEED)
             elif enemy.rect.left <= 0:
-                self.enemy_direction = ENEMY_1_MOVE_SPEED
+                self.enemy_direction = self.get_enemy_move_speed()
                 self.enemy_move_down(ENEMY_MOVE_DOWN_SPEED)
 
     def enemy_move_down(self, distance):
         if self.enemies.sprites():
             for enemy in self.enemies.sprites():
                 enemy.rect.y += distance
+
+    def get_enemy_move_speed(self):
+        c1 = 0
+        c2 = 0
+        c3 = 0
+        for enemy in self.enemies.sprites():
+            match enemy.enemy_index:
+                case '1':
+                    c1 += 1
+                case '2':
+                    c2 += 2
+                case '3':
+                    c3 += 3
+        res = max(c1, c2, c3)
+        if res == c1:
+            return ENEMY_1_MOVE_SPEED
+        elif res == c2:
+            return ENEMY_2_MOVE_SPEED
+        elif res == c3:
+            return ENEMY_3_MOVE_SPEED
 
     def enemy_shoot(self):
         if self.enemies.sprites():
