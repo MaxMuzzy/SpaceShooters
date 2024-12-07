@@ -36,8 +36,32 @@ TIME_TIL_NEXT_LEVEL = 3 #Seconds
 LEVELS = [
     [
         '1111111111',
+        '1111111111',
+        '1111111111',
     ],
     [
         '2222222222',
+        '2222222222',
+        '2222222222',
     ],
+]
+
+# Максимальные значения улучшений
+MAX_PLAYER_LIVES = 3
+MAX_PLAYER_SPEED = 10
+MAX_PLAYER_SHOOT_COOLDOWN = 200  # Миллисекунды
+MAX_PLAYER_BULLETS_PER_SHOT = 5
+
+# Приросты улучшений
+PLAYER_SPEED_INCREASE = 1
+PLAYER_SHOOT_COOLDOWN_DECREASE = 50  # Миллисекунды
+PLAYER_BULLETS_PER_SHOT_INCREASE = 1
+
+# Шанс выпадения улучшения (0.0 - 1.0)
+POWERUP_DROP_CHANCE = 1.0
+
+# Улучшения по уровням
+LEVEL_POWERUPS = [
+    {"lives": 0, "speed": 0, "cooldown": 0, "bullets": 3},  # Уровень 1
+    {"lives": 2, "speed": 1, "cooldown": 2, "bullets": 2},  # Уровень 2
 ]

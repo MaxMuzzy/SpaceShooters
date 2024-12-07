@@ -9,6 +9,7 @@ class Enemy(pygame.sprite.Sprite):
         self.image = pygame.image.load(file_path).convert_alpha()
         self.rect = self.image.get_rect(topleft = (x, y))
         self.enemy_index = enemy_index
+        self.is_hit = False
         match self.enemy_index:
             case '1':
                 self.value = ENEMY_1_VALUE
@@ -24,6 +25,9 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.x += direction
         if self.health <= 0:
             self.kill()
+
+    def reset_hit(self):
+        self.is_hit = False
 
 
 class UFO(pygame.sprite.Sprite):

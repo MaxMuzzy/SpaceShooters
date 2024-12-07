@@ -2,9 +2,10 @@ import pygame, sys
 from player import Player
 import obstacle
 from enemy import Enemy, UFO
-from random import choice, randint
+from random import choice, randint, random
 from cfg import *
 from enemyhandler import EnemyHandler
+from spaceshooters.poweruphandler import PowerUpHandler
 
 
 class Game:
@@ -14,7 +15,6 @@ class Game:
         self.player = pygame.sprite.GroupSingle(player_sprite)
 
         #health and score
-        self.lives = 3
         self.live_surf = pygame.image.load('PNG/new/newPlayer.png').convert_alpha()
         self.live_x_start_pos = screen_width - (self.live_surf.get_size()[0] * 3 + 20)
         self.score = 0
@@ -41,6 +41,9 @@ class Game:
         self.starting_level = 0
         self.current_level = self.starting_level
         self.game_over = False
+
+        #powerups
+        self.powerup_handler = PowerUpHandler()
 
     def create_obstacle(self, x_start, y_start, offset_x):
         for row_index, row in enumerate(self.shape):
@@ -72,8 +75,11 @@ class Game:
                 if enemies_hit:
                     for enemy in enemies_hit:
                         enemy.health -= 1
-                        if enemy.health <= 0:
+                        if enemy.health <= 0 and not enemy.is_hit:
+                            enemy.is_hit = True
                             self.score += enemy.value
+                            if random() <= POWERUP_DROP_CHANCE:
+                                self.powerup_handler.spawn_powerup(enemy.rect.center, self.current_level)
                     bullet.kill()
                 #ufo collision
                 if pygame.sprite.spritecollide(bullet, self.ufo, True):
@@ -88,10 +94,10 @@ class Game:
                 if pygame.sprite.spritecollide(bullet, self.player, False):
                     bullet.kill()
                     if bullet.owner_index == '3':
-                        self.lives -= 2
+                        self.player.sprite.lives -= 2
                     else:
-                        self.lives -= 1
-                    if self.lives <= 0:
+                        self.player.sprite.lives -= 1
+                    if self.player.sprite.lives <= 0:
                         pygame.quit()
                         sys.exit()
 
@@ -102,8 +108,11 @@ class Game:
                     pygame.quit()
                     sys.exit()
 
+        for enemy in self.EnemyHandler.enemies.sprites():
+            enemy.reset_hit()
+
     def display_lives(self):
-        for live in range(self.lives ):
+        for live in range(self.player.sprite.lives):
             x = self.live_x_start_pos + (live * (self.live_surf.get_size()[0] + 10))
             screen.blit(self.live_surf, (x, 8))
 
@@ -133,6 +142,7 @@ class Game:
                     self.level_clear_timer = None
                     self.current_level += 1
                     self.EnemyHandler.enemy_setup(LEVELS[self.current_level])
+                    self.powerup_handler.__init__()
                     self.time_til_next_level = TIME_TIL_NEXT_LEVEL
             else:
                     self.game_over = True
@@ -148,6 +158,8 @@ class Game:
             self.EnemyHandler.update()
             self.ufo_timer()
             self.collision_checks()
+            self.powerup_handler.update()
+            self.powerup_handler.check_collision(self.player.sprite)
 
 
         self.player.sprite.bullets.draw(screen)
@@ -158,6 +170,7 @@ class Game:
         self.ufo.draw(screen)
         self.display_lives()
         self.display_score()
+        self.powerup_handler.powerups.draw(screen)
 
 
 pygame.init()
