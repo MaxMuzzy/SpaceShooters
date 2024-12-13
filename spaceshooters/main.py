@@ -5,7 +5,7 @@ from enemy import Enemy, UFO
 from random import choice, randint, random
 from cfg import *
 from enemyhandler import EnemyHandler
-from spaceshooters.poweruphandler import PowerUpHandler
+from poweruphandler import PowerUpHandler
 
 
 class Game:
@@ -15,7 +15,7 @@ class Game:
         self.player = pygame.sprite.GroupSingle(player_sprite)
 
         #health and score
-        self.live_surf = pygame.image.load('PNG/new/newPlayer.png').convert_alpha()
+        self.live_surf = pygame.image.load('PNG/newPlayer.png').convert_alpha()
         self.live_x_start_pos = screen_width - (self.live_surf.get_size()[0] * 3 + 20)
         self.score = 0
         self.font = pygame.font.Font('font/PublicPixel.ttf', FONT_SIZE)

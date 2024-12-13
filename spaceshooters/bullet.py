@@ -5,10 +5,10 @@ class Bullet(pygame.sprite.Sprite):
     def __init__(self, pos, speed, is_player = True, enemy_index = 0):
         super().__init__()
         if is_player:
-            self.image = pygame.image.load("PNG/new/newPlayerBullet.png").convert_alpha()
+            self.image = pygame.image.load("PNG/newPlayerBullet.png").convert_alpha()
         else:
             if enemy_index != 0:
-                self.image = pygame.image.load("PNG/new/newEnemy" + enemy_index + "Bullet.png").convert_alpha()
+                self.image = pygame.image.load("PNG/newEnemy" + enemy_index + "Bullet.png").convert_alpha()
                 self.owner_index = enemy_index
         self.rect = self.image.get_rect(center = pos)
         self.speed = speed
