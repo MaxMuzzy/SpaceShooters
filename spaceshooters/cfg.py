@@ -22,28 +22,34 @@ ENEMY_Y_OFFSET = 100
 ENEMY_1_MOVE_SPEED = 1
 ENEMY_2_MOVE_SPEED = 2
 ENEMY_3_MOVE_SPEED = 1
-ENEMY_4_MOVE_SPEED = 1
 ENEMY_MOVE_DOWN_SPEED = 3
 ENEMY_1_VALUE = 100
 ENEMY_2_VALUE = 200
 ENEMY_3_VALUE = 300
-ENEMY_4_VALUE = 400
 ENEMY_SHOOT_TIME = 0.8 #Seconds
 ENEMY_BULLET_SPEED = 6
 
 
 TIME_TIL_NEXT_LEVEL = 3 #Seconds
 LEVELS = [
+    # [
+    #     '1111111111',
+    #     '1111111111',
+    #     '1111111111',
+    # ],
+    # [
+    #     '2222222222',
+    #     '2222222222',
+    #     '2222222222',
+    # ],
+    # [
+    #     '3333333333',
+    #     '3333333333',
+    #     '3333333333',
+    # ],
     [
-        '1111111111',
-        '1111111111',
-        '1111111111',
-    ],
-    [
-        '2222222222',
-        '2222222222',
-        '2222222222',
-    ],
+        '1',
+    ]
 ]
 
 # Максимальные значения улучшений
@@ -58,10 +64,25 @@ PLAYER_SHOOT_COOLDOWN_DECREASE = 50  # Миллисекунды
 PLAYER_BULLETS_PER_SHOT_INCREASE = 1
 
 # Шанс выпадения улучшения (0.0 - 1.0)
-POWERUP_DROP_CHANCE = 1.0
+POWERUP_DROP_CHANCE = 1
 
 # Улучшения по уровням
 LEVEL_POWERUPS = [
-    {"lives": 0, "speed": 0, "cooldown": 0, "bullets": 3},  # Уровень 1
-    {"lives": 2, "speed": 1, "cooldown": 2, "bullets": 2},  # Уровень 2
+    {"lives": 0, "speed": 0, "cooldown": 5, "bullets": 5},  # Уровень 1
+    #{"lives": 2, "speed": 2, "cooldown": 0, "bullets": 0},  # Уровень 2
+    #{"lives": 1, "speed": 1, "cooldown": 3, "bullets": 3},
 ]
+
+# Параметры босса
+BOSS_STAGE1_HEALTH = 1
+BOSS_STAGE1_SPEED = 2
+BOSS_STAGE1_DAMAGE = 1
+BOSS_STAGE1_SHOOT_COOLDOWN = 0.6  # В секундах
+
+BOSS_STAGE2_HEALTH = 2
+BOSS_STAGE2_SPEED = 1
+BOSS_STAGE2_DAMAGE = 2
+BOSS_STAGE2_SHOOT_COOLDOWN = 0.8  # В секундах
+
+BOSS_BULLET_SPEED = 5
+BOSS_VALUE = 10000
