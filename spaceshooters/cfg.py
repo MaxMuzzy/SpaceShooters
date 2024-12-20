@@ -64,22 +64,22 @@ PLAYER_SHOOT_COOLDOWN_DECREASE = 50  # Миллисекунды
 PLAYER_BULLETS_PER_SHOT_INCREASE = 1
 
 # Шанс выпадения улучшения (0.0 - 1.0)
-POWERUP_DROP_CHANCE = 1
+POWERUP_DROP_CHANCE = 0.25
 
 # Улучшения по уровням
 LEVEL_POWERUPS = [
-    {"lives": 0, "speed": 0, "cooldown": 5, "bullets": 5},  # Уровень 1
-    #{"lives": 2, "speed": 2, "cooldown": 0, "bullets": 0},  # Уровень 2
-    #{"lives": 1, "speed": 1, "cooldown": 3, "bullets": 3},
+    {"lives": 0, "speed": 0, "cooldown": 0, "bullets": 0},  # Уровень 1
+    {"lives": 4, "speed": 2, "cooldown": 0, "bullets": 0},  # Уровень 2
+    {"lives": 2, "speed": 1, "cooldown": 3, "bullets": 3},
 ]
 
 # Параметры босса
-BOSS_STAGE1_HEALTH = 1
+BOSS_STAGE1_HEALTH = 50
 BOSS_STAGE1_SPEED = 2
 BOSS_STAGE1_DAMAGE = 1
 BOSS_STAGE1_SHOOT_COOLDOWN = 0.6  # В секундах
 
-BOSS_STAGE2_HEALTH = 2
+BOSS_STAGE2_HEALTH = 75
 BOSS_STAGE2_SPEED = 1
 BOSS_STAGE2_DAMAGE = 2
 BOSS_STAGE2_SHOOT_COOLDOWN = 0.8  # В секундах

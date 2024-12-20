@@ -1,12 +1,11 @@
 import pygame, sys
 from player import Player
 import obstacle
-from enemy import Enemy, UFO
+from enemy import UFO
 from random import choice, randint, random
 from cfg import *
 from enemyhandler import EnemyHandler
 from poweruphandler import PowerUpHandler
-from boss import Boss
 from bosshandler import BossHandler
 
 
@@ -31,7 +30,7 @@ class Game:
         self.create_multiple_obstacles(*self.obstacle_x_positions, x_start = screen_width / 12.625, y_start = OBSTACLE_Y_START)
 
         #enemies
-        self.enemy_handler = EnemyHandler(pygame.sprite.Group(), pygame.sprite.Group())
+        self.enemy_handler = EnemyHandler()
         self.enemy_handler.enemy_setup(LEVELS[0])
 
         #ufo
@@ -174,7 +173,15 @@ class Game:
                     self.time_til_next_level = TIME_TIL_NEXT_LEVEL
             else:
                 if not self.boss_handler.boss and not self.boss_handler.defeated:
-                    self.boss_handler.start_boss_battle()
+                    if self.level_clear_timer is None:
+                        self.level_clear_timer = self.time_til_next_level
+
+                    self.level_clear_timer -= 1 / 60
+                    time_remaining = max(0, int(self.level_clear_timer))
+                    self.display_text(f"BOSS STAGE IN: {time_remaining + 1}", 0, 0)
+
+                    if self.level_clear_timer <= 0:
+                        self.boss_handler.start_boss_battle()
                 elif self.boss_handler.defeated:
                     self.score += BOSS_VALUE
                     self.game_over = True

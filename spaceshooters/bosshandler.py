@@ -16,7 +16,7 @@ class BossHandler():
 
     def start_boss_battle(self):
         if not self.boss.sprite:
-            self.boss_sprite = Boss(SCREEN_WIDTH // 2, 100)
+            self.boss_sprite = Boss(SCREEN_WIDTH // 2, 150)
             self.boss = pygame.sprite.GroupSingle(self.boss_sprite)
             self.spawned = True
 

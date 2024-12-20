@@ -35,6 +35,7 @@ class Boss(pygame.sprite.Sprite):
         self.rect.x += self.speed * self.direction
         if self.rect.left <= 0 or self.rect.right >= SCREEN_WIDTH:
             self.direction *= -1
+            self.rect.y += ENEMY_MOVE_DOWN_SPEED
 
         self.shoot_timer -= 1 / 60
         if self.shoot_timer <= 0:
