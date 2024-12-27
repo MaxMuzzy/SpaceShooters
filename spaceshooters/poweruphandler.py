@@ -3,7 +3,6 @@ import pygame
 from cfg import *
 from powerup import PowerUp
 
-
 class PowerUpHandler:
     def __init__(self):
         self.powerups = pygame.sprite.Group()
@@ -33,7 +32,7 @@ class PowerUpHandler:
             self.powerup_counts[chosen_powerup] += 1  # Увеличиваем счетчик для выбранного улучшения
 
     def check_collision(self, player):
-        """Проверка столкновения улучшений с игроком."""
+        # Проверка столкновения улучшений с игроком.
         for powerup in pygame.sprite.spritecollide(player, self.powerups, dokill=True):
             match powerup.type:
                 case "lives":
@@ -50,5 +49,5 @@ class PowerUpHandler:
                         player.bullets_per_shot += PLAYER_BULLETS_PER_SHOT_INCREASE
 
     def update(self):
-        """Обновление всех улучшений."""
+        # Обновление всех улучшений.
         self.powerups.update()

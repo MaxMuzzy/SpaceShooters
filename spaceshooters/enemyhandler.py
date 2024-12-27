@@ -1,10 +1,8 @@
 import pygame
-
 from random import choice
 from cfg import *
 from enemy import Enemy
 from bullet import Bullet
-
 
 class EnemyHandler():
     def __init__(self):

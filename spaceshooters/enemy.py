@@ -1,7 +1,6 @@
 import pygame
 from cfg import *
 
-
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, enemy_index, x, y):
         super().__init__()

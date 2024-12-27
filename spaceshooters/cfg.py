@@ -2,7 +2,7 @@ FONT_SIZE = 20
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 800
 
-PLAYER_SHOOT_COOLDOWN = 600 # Millis
+PLAYER_SHOOT_COOLDOWN = 600 # Миллисекунды
 PLAYER_BULLET_SPEED = 8
 
 BLOCK_SIZE = 7
@@ -26,30 +26,30 @@ ENEMY_MOVE_DOWN_SPEED = 3
 ENEMY_1_VALUE = 100
 ENEMY_2_VALUE = 200
 ENEMY_3_VALUE = 300
-ENEMY_SHOOT_TIME = 0.8 #Seconds
+ENEMY_SHOOT_TIME = 0.8 # Секунды
 ENEMY_BULLET_SPEED = 6
 
 
-TIME_TIL_NEXT_LEVEL = 3 #Seconds
+TIME_TIL_NEXT_LEVEL = 3 # Секунды
 LEVELS = [
-    # [
-    #     '1111111111',
-    #     '1111111111',
-    #     '1111111111',
-    # ],
-    # [
-    #     '2222222222',
-    #     '2222222222',
-    #     '2222222222',
-    # ],
-    # [
-    #     '3333333333',
-    #     '3333333333',
-    #     '3333333333',
-    # ],
     [
-        '1',
-    ]
+        '1111111111',
+        '1111111111',
+        '1111111111',
+    ],
+    [
+        '2222222222',
+        '2222222222',
+        '2222222222',
+        '1111111111',
+    ],
+    [
+        '3333333333',
+        '3333333333',
+        '3333333333',
+        '2222222222',
+        '1111111111',
+    ],
 ]
 
 # Максимальные значения улучшений
@@ -64,13 +64,13 @@ PLAYER_SHOOT_COOLDOWN_DECREASE = 50  # Миллисекунды
 PLAYER_BULLETS_PER_SHOT_INCREASE = 1
 
 # Шанс выпадения улучшения (0.0 - 1.0)
-POWERUP_DROP_CHANCE = 0.25
+POWERUP_DROP_CHANCE = 0.15
 
 # Улучшения по уровням
 LEVEL_POWERUPS = [
     {"lives": 0, "speed": 0, "cooldown": 0, "bullets": 0},  # Уровень 1
     {"lives": 4, "speed": 2, "cooldown": 0, "bullets": 0},  # Уровень 2
-    {"lives": 2, "speed": 1, "cooldown": 3, "bullets": 3},
+    {"lives": 2, "speed": 1, "cooldown": 3, "bullets": 3},  # Уровень 3
 ]
 
 # Параметры босса

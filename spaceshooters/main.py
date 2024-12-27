@@ -8,7 +8,6 @@ from enemyhandler import EnemyHandler
 from poweruphandler import PowerUpHandler
 from bosshandler import BossHandler
 
-
 class Game:
     def __init__(self):
         #player

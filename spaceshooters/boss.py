@@ -2,7 +2,6 @@ import pygame
 from cfg import *
 from bullet import Bullet
 
-
 class Boss(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
@@ -45,10 +44,10 @@ class Boss(pygame.sprite.Sprite):
         self.bullets.update()
 
     def shoot(self):
-        self.bullets.add(Bullet(self.rect.midbottom, BOSS_BULLET_SPEED, False, '1'))
+        self.bullets.add(Bullet(self.rect.midbottom, BOSS_BULLET_SPEED, False, '4'))
 
     def start_stage2(self):
-        """Переход босса на стадию 2"""
+        #Переход босса на стадию 2
         self.current_stage = 2
         self.health = self.health_stage2
         self.speed = self.speed_stage2
