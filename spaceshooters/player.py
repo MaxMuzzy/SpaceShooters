@@ -5,14 +5,16 @@ from cfg import *
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos, constraint, speed):
         super().__init__()
-        self.image = pygame.image.load('PNG/new/newPlayer.png').convert_alpha()
-        self.rect = self.image.get_rect(midbottom = pos)
+        self.image = pygame.image.load('PNG/newPlayer.png').convert_alpha()
+        self.rect = self.image.get_rect(midbottom=pos)
         self.speed = speed
-        self.max_x_constraint = constraint
-        self.ready = True
+        self.lives = MAX_PLAYER_LIVES
         self.shoot_cooldown = PLAYER_SHOOT_COOLDOWN
-        self.shoot_time = self.shoot_cooldown
+        self.bullets_per_shot = 1  # Количество пуль за выстрел
 
+        self.ready = True
+        self.shoot_time = 0
+        self.max_x_constraint = constraint
         self.bullets = pygame.sprite.Group()
 
     def get_input(self):
@@ -33,12 +35,6 @@ class Player(pygame.sprite.Sprite):
             current_time = pygame.time.get_ticks()
             if current_time - self.shoot_time >= self.shoot_cooldown:
                 self.ready = True
-        # if self.shoot_time is None:
-        #     self.shoot_time = self.shoot_cooldown
-        # self.shoot_time -= 1 / 60
-        # if self.shoot_time <= 0:
-        #     self.shoot_time = None
-        #     self.ready = True
 
     def constraint(self):
         if self.rect.left <= 0:
@@ -47,7 +43,21 @@ class Player(pygame.sprite.Sprite):
             self.rect.right = self.max_x_constraint
 
     def shoot(self):
-        self.bullets.add(Bullet(self.rect.center, -PLAYER_BULLET_SPEED, True, 0))
+        bullets_count = self.bullets_per_shot
+        # Расстояние между пулями
+        spacing = 20
+
+        if bullets_count % 2 == 1:
+            self.bullets.add(Bullet(self.rect.center, -PLAYER_BULLET_SPEED, True, 0))
+            for i in range(1, bullets_count // 2 + 1):
+                offset = spacing * i
+                self.bullets.add(Bullet((self.rect.centerx - offset, self.rect.centery), -PLAYER_BULLET_SPEED, True, 0))
+                self.bullets.add(Bullet((self.rect.centerx + offset, self.rect.centery), -PLAYER_BULLET_SPEED, True, 0))
+        else:
+            for i in range(1, bullets_count // 2 + 1):
+                offset = spacing * (i - 0.5)
+                self.bullets.add(Bullet((self.rect.centerx - offset, self.rect.centery), -PLAYER_BULLET_SPEED, True, 0))
+                self.bullets.add(Bullet((self.rect.centerx + offset, self.rect.centery), -PLAYER_BULLET_SPEED, True, 0))
 
     def update(self):
         self.get_input()

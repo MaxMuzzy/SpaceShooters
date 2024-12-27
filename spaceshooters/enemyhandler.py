@@ -1,21 +1,16 @@
 import pygame
-
 from random import choice
 from cfg import *
 from enemy import Enemy
 from bullet import Bullet
 
-
 class EnemyHandler():
-    def __init__(self, current_level_enemies, enemy_bullets):
-        if type(current_level_enemies) == pygame.sprite.Group and type(enemy_bullets) == pygame.sprite.Group:
-            self.enemies = current_level_enemies
-            self.enemy_bullets = enemy_bullets
-            self.enemy_direction = ENEMY_1_MOVE_SPEED
-            self.enemy_shoot_interval = ENEMY_SHOOT_TIME
-            self.enemy_shoot_timer = self.enemy_shoot_interval
-        else:
-            raise ValueError
+    def __init__(self):
+        self.enemies = pygame.sprite.Group()
+        self.enemy_bullets = pygame.sprite.Group()
+        self.enemy_direction = 1
+        self.enemy_shoot_interval = ENEMY_SHOOT_TIME
+        self.enemy_shoot_timer = self.enemy_shoot_interval
 
     def update(self):
         self.enemies.update(self.enemy_direction)
@@ -50,15 +45,15 @@ class EnemyHandler():
         for enemy in self.enemies.sprites():
             if enemy.rect.right >= SCREEN_WIDTH:
                 self.enemy_direction = -self.get_enemy_move_speed()
-                self.enemy_move_down(ENEMY_MOVE_DOWN_SPEED)
+                self.enemy_move_down()
             elif enemy.rect.left <= 0:
                 self.enemy_direction = self.get_enemy_move_speed()
-                self.enemy_move_down(ENEMY_MOVE_DOWN_SPEED)
+                self.enemy_move_down()
 
-    def enemy_move_down(self, distance):
+    def enemy_move_down(self):
         if self.enemies.sprites():
             for enemy in self.enemies.sprites():
-                enemy.rect.y += distance
+                enemy.rect.y += ENEMY_MOVE_DOWN_SPEED
 
     def get_enemy_move_speed(self):
         c1 = 0

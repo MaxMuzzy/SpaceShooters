@@ -1,11 +1,12 @@
 import pygame, sys
 from player import Player
 import obstacle
-from enemy import Enemy, UFO
-from random import choice, randint
+from enemy import UFO
+from random import choice, randint, random
 from cfg import *
 from enemyhandler import EnemyHandler
-
+from poweruphandler import PowerUpHandler
+from bosshandler import BossHandler
 
 class Game:
     def __init__(self):
@@ -14,8 +15,7 @@ class Game:
         self.player = pygame.sprite.GroupSingle(player_sprite)
 
         #health and score
-        self.lives = 3
-        self.live_surf = pygame.image.load('PNG/new/newPlayer.png').convert_alpha()
+        self.live_surf = pygame.image.load('PNG/newPlayer.png').convert_alpha()
         self.live_x_start_pos = screen_width - (self.live_surf.get_size()[0] * 3 + 20)
         self.score = 0
         self.font = pygame.font.Font('font/PublicPixel.ttf', FONT_SIZE)
@@ -29,8 +29,8 @@ class Game:
         self.create_multiple_obstacles(*self.obstacle_x_positions, x_start = screen_width / 12.625, y_start = OBSTACLE_Y_START)
 
         #enemies
-        self.EnemyHandler = EnemyHandler(pygame.sprite.Group(), pygame.sprite.Group())
-        self.EnemyHandler.enemy_setup(LEVELS[0])
+        self.enemy_handler = EnemyHandler()
+        self.enemy_handler.enemy_setup(LEVELS[0])
 
         #ufo
         self.ufo = pygame.sprite.GroupSingle()
@@ -41,6 +41,12 @@ class Game:
         self.starting_level = 0
         self.current_level = self.starting_level
         self.game_over = False
+
+        #powerups
+        self.powerup_handler = PowerUpHandler()
+
+        #boss
+        self.boss_handler = BossHandler()
 
     def create_obstacle(self, x_start, y_start, offset_x):
         for row_index, row in enumerate(self.shape):
@@ -68,42 +74,71 @@ class Game:
                 if pygame.sprite.spritecollide(bullet, self.blocks, True):
                     bullet.kill()
                 #enemy collision
-                enemies_hit = pygame.sprite.spritecollide(bullet, self.EnemyHandler.enemies, False)
+                enemies_hit = pygame.sprite.spritecollide(bullet, self.enemy_handler.enemies, False)
                 if enemies_hit:
                     for enemy in enemies_hit:
                         enemy.health -= 1
-                        if enemy.health <= 0:
+                        if enemy.health <= 0 and not enemy.is_hit:
+                            enemy.is_hit = True
                             self.score += enemy.value
+                            if random() <= POWERUP_DROP_CHANCE:
+                                self.powerup_handler.spawn_powerup(enemy.rect.center, self.current_level)
                     bullet.kill()
                 #ufo collision
                 if pygame.sprite.spritecollide(bullet, self.ufo, True):
                     self.score += UFO_VALUE
                     bullet.kill()
+                #boss collision
+                if self.boss_handler.boss.sprite:
+                    if pygame.sprite.spritecollide(bullet, self.boss_handler.boss, False):
+                        bullet.kill()
+                        self.boss_handler.boss.sprite.take_damage(1)
 
-        if self.EnemyHandler.enemy_bullets:
-            for bullet in self.EnemyHandler.enemy_bullets:
+        if self.enemy_handler.enemy_bullets:
+            for bullet in self.enemy_handler.enemy_bullets:
                 # obstacle collision
                 if pygame.sprite.spritecollide(bullet, self.blocks, True):
                     bullet.kill()
+                # player collision
                 if pygame.sprite.spritecollide(bullet, self.player, False):
                     bullet.kill()
                     if bullet.owner_index == '3':
-                        self.lives -= 2
+                        self.player.sprite.lives -= 2
                     else:
-                        self.lives -= 1
-                    if self.lives <= 0:
+                        self.player.sprite.lives -= 1
+                    if self.player.sprite.lives <= 0:
                         pygame.quit()
                         sys.exit()
 
-        if self.EnemyHandler.enemies:
-            for enemy in self.EnemyHandler.enemies:
+        if self.enemy_handler.enemies:
+            for enemy in self.enemy_handler.enemies:
                 pygame.sprite.spritecollide(enemy, self.blocks, True)
                 if pygame.sprite.spritecollide(enemy, self.player, False):
                     pygame.quit()
                     sys.exit()
 
+        for enemy in self.enemy_handler.enemies.sprites():
+            enemy.reset_hit()
+
+        #boss
+        if self.boss_handler.boss.sprite: #and not self.boss_handler.defeated:
+            if self.boss_handler.boss.sprite.bullets:
+                for bullet in self.boss_handler.boss.sprite.bullets:
+                    # obstacle collision
+                    if pygame.sprite.spritecollide(bullet, self.blocks, True):
+                        bullet.kill()
+                    # player collision
+                    if pygame.sprite.spritecollide(bullet, self.player, False):
+                        bullet.kill()
+                        damage = BOSS_STAGE2_DAMAGE if self.boss_handler.boss.sprite.current_stage == 2 else 1
+                        self.player.sprite.lives -= damage
+                        if self.player.sprite.lives <= 0:
+                            pygame.quit()
+                            sys.exit()
+
+
     def display_lives(self):
-        for live in range(self.lives ):
+        for live in range(self.player.sprite.lives):
             x = self.live_x_start_pos + (live * (self.live_surf.get_size()[0] + 10))
             screen.blit(self.live_surf, (x, 8))
 
@@ -118,7 +153,7 @@ class Game:
         screen.blit(victory_surf, victory_rect)
 
     def run(self):
-        if self.EnemyHandler.enemies.sprites():
+        if self.enemy_handler.enemies.sprites():
             self.level_clear_timer = None
         elif not self.game_over:
             if self.current_level + 1 < len(LEVELS):
@@ -132,10 +167,24 @@ class Game:
                 if self.level_clear_timer <= 0:
                     self.level_clear_timer = None
                     self.current_level += 1
-                    self.EnemyHandler.enemy_setup(LEVELS[self.current_level])
+                    self.enemy_handler.enemy_setup(LEVELS[self.current_level])
+                    self.powerup_handler.__init__()
                     self.time_til_next_level = TIME_TIL_NEXT_LEVEL
             else:
+                if not self.boss_handler.boss and not self.boss_handler.defeated:
+                    if self.level_clear_timer is None:
+                        self.level_clear_timer = self.time_til_next_level
+
+                    self.level_clear_timer -= 1 / 60
+                    time_remaining = max(0, int(self.level_clear_timer))
+                    self.display_text(f"BOSS STAGE IN: {time_remaining + 1}", 0, 0)
+
+                    if self.level_clear_timer <= 0:
+                        self.boss_handler.start_boss_battle()
+                elif self.boss_handler.defeated:
+                    self.score += BOSS_VALUE
                     self.game_over = True
+
         if self.game_over:
             self.display_text("YOU WIN!", 0, 0)
             self.display_text("PRESS R TO RESTART", 0, 35)
@@ -145,20 +194,27 @@ class Game:
         else:
             self.player.update()
             self.ufo.update()
-            self.EnemyHandler.update()
+            self.enemy_handler.update()
             self.ufo_timer()
             self.collision_checks()
+            self.powerup_handler.update()
+            self.powerup_handler.check_collision(self.player.sprite)
+            self.boss_handler.update()
 
 
         self.player.sprite.bullets.draw(screen)
         self.player.draw(screen)
         self.blocks.draw(screen)
-        self.EnemyHandler.enemies.draw(screen)
-        self.EnemyHandler.enemy_bullets.draw(screen)
+        self.enemy_handler.enemies.draw(screen)
+        self.enemy_handler.enemy_bullets.draw(screen)
         self.ufo.draw(screen)
         self.display_lives()
         self.display_score()
-
+        self.powerup_handler.powerups.draw(screen)
+        if self.boss_handler.boss.sprite:
+            self.boss_handler.boss.draw(screen)
+            self.boss_handler.boss.sprite.bullets.draw(screen)
+            self.boss_handler.draw_health_bar(screen)
 
 pygame.init()
 screen_width = SCREEN_WIDTH
